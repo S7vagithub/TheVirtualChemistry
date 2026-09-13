@@ -1,32 +1,33 @@
 import Image from "next/image";
-// 1. Import the images directly from your public folder
-import bgImg from "../public/bg.png";
-import logoImg from "../public/TVC_home.png";
+
+// Automatically handles the repo sub-path on GitHub Pages while keeping local dev clean
+const basePath = process.env.NODE_ENV === 'production' ? '/TheVirtualChemistry' : '';
 
 export default function Home() {
   return (
     // Adjusted min-h to center the content perfectly between the navbar and footer
     <div className="relative w-full flex items-center justify-center min-h-[70vh]">
       
-      {/* THE FULL-SCREEN BACKGROUND */}
+      {/* 1. THE FULL-SCREEN BACKGROUND: Fixed to the viewport to eliminate all gaps and strips */}
       <div className="fixed inset-0 w-[100vw] h-[100vh] -z-20 pointer-events-none">
         <Image 
-          src={bgImg} // 2. Use the imported variable here
+          src={`${basePath}/bg.png`} 
           alt="Computational Chemistry Background" 
           fill 
-          className="object-cover opacity-20"
+          className="object-cover opacity-60"
           priority
         />
+        {/* Smooth vertical fade so it blends flawlessly into the Navbar (top) and Footer (bottom) */}
         <div className="absolute inset-0 bg-gradient-to-b from-[#020617] via-transparent to-[#020617]"></div>
       </div>
 
-      {/* Content Container */}
+      {/* 2. Original Content Container */}
       <div className="fade-in flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 w-full max-w-5xl mt-4 md:mt-0">
         
         {/* Logo Section */}
         <div className="shrink-0 z-10 w-full max-w-[280px] md:max-w-[360px] mx-auto md:mx-0">
           <Image 
-            src={logoImg} // 3. Use the imported variable here
+            src={`${basePath}/TVC_home.png`} 
             alt="The Virtual Chemistry Logo" 
             width={360} 
             height={360} 
@@ -35,7 +36,7 @@ export default function Home() {
           />
         </div>
         
-        {/* Text Section */}
+        {/* Text Section with Glassmorphism Effect */}
         <div className="space-y-6 bg-[#0f172a]/60 backdrop-blur-md p-6 md:p-8 rounded-2xl border border-blue-900/40 z-10 shadow-2xl w-full">
           <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-white text-center md:text-left">
             Welcome to TheVirtualChemistry
