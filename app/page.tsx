@@ -1,17 +1,3 @@
-// This is a minimal, error-free placeholder to satisfy Next.js's "is not a module" check.
-// You can use this generic function for every blank page.tsx file for now.
-
-export default function PlaceholderPage() {
-  return (
-    <div className="flex items-center justify-center min-h-[50vh]">
-      <h1 className="text-3xl font-bold text-slate-300">
-        This Page is Currently Blank (TBD)
-      </h1>
-    </div>
-  );
-}
-
-
 import Image from "next/image";
 
 export default function Home() {
