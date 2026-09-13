@@ -1,0 +1,225 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+
+export default function Publications() {
+  const [openYears, setOpenYears] = useState<Record<string, boolean>>({
+    "2026": true,
+    "2024": true,
+  });
+
+  const toggleYear = (year: string) => {
+    setOpenYears((prev) => ({
+      ...prev,
+      [year]: !prev[year],
+    }));
+  };
+
+  return (
+    <div className="space-y-12 mt-8 fade-in max-w-5xl">
+      
+      {/* Page Header */}
+      <div className="border-b border-blue-900/50 pb-6">
+        <h1 className="text-4xl font-bold tracking-tight text-white mb-2">
+          Publications
+        </h1>
+       <p className="text-lg text-blue-300">
+          Peer-reviewed articles and scientific contributions.
+        </p>
+      </div>
+      <div className="space-y-10">
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+        
+        {/* ======== 2026 SECTION ======== */}
+        <div>
+          <button 
+            onClick={() => toggleYear("2026")}
+            className="w-full flex justify-between items-center py-4 border-b-2 border-blue-900/50 hover:border-blue-400 transition-colors group"
+          >
+            <h2 className="text-3xl font-bold text-white group-hover:text-blue-200 transition-colors">2026</h2>
+            <svg 
+              className={`w-8 h-8 text-blue-400 transform transition-transform duration-300 ${openYears["2026"] ? 'rotate-180' : 'rotate-0'}`} 
+              fill="none" stroke="currentColor" viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          <div className={`overflow-hidden transition-all duration-500 ease-in-out ${openYears["2026"] ? 'max-h-[1000px] opacity-100 mt-6' : 'max-h-0 opacity-0 mt-0'}`}>
+            
+            {/* 2026 Paper: LISCO */}
+            <section id="spin-crossover" className="bg-[#0f172a] rounded-xl border border-blue-900/30 overflow-hidden hover:border-blue-500/50 transition-colors group">
+              <div className="flex flex-col md:flex-row">
+                <div className="p-6 md:w-2/3 flex flex-col space-y-3">
+                  <h3 className="text-xl font-semibold text-white group-hover:text-blue-200 transition-colors">
+                    Computational Insights Into Light-Induced Spin Crossover and Magnetic Properties of [Fe<sup>II</sup>(Tp)(CN)<sub>3</sub>]<sup>-2</sup> Complex
+                  </h3>
+                  <p className="text-slate-400">
+                    <strong className="text-blue-300">S Samanta</strong>, S Ray, P Mondal
+                  </p>
+                  <p className="text-sm font-mono text-slate-500">
+                    <span className="text-blue-400">Advanced Theory and Simulations</span> 9 (2), e01684
+                  </p>
+                  <div className="pt-2 mt-auto">
+                    <Link 
+                      href="https://doi.org/10.1002/adts.202501684" 
+                      target="_blank"
+                      className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-900/50 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-900/50 border border-blue-700/50 transition-all"
+                    >
+                      DOI ↗
+                    </Link>
+                  </div>
+                </div>
+                {/* TOC Image: LISCO */}
+                <div className="bg-[#020617] md:w-1/3 p-4 flex flex-col items-center justify-center border-t md:border-t-0 md:border-l border-blue-900/30">
+                  <div className="relative w-full h-48 md:h-full min-h-[180px]">
+                    <Image 
+                      src="/toc_lisco.png" 
+                      alt="TOC Graphic for LISCO paper" 
+                      fill 
+                      className="object-contain p-2"
+                    />
+                  </div>
+                </div>
+              </div>
+            </section>
+
+          </div>
+        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        {/* ======== 2024 SECTION ======== */}
+        <div>
+          <button 
+            onClick={() => toggleYear("2024")}
+            className="w-full flex justify-between items-center py-4 border-b-2 border-blue-900/50 hover:border-blue-400 transition-colors group"
+          >
+            <h2 className="text-3xl font-bold text-white group-hover:text-blue-200 transition-colors">2024</h2>
+            <svg 
+              className={`w-8 h-8 text-blue-400 transform transition-transform duration-300 ${openYears["2024"] ? 'rotate-180' : 'rotate-0'}`} 
+              fill="none" stroke="currentColor" viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          <div className={`space-y-6 overflow-hidden transition-all duration-500 ease-in-out ${openYears["2024"] ? 'max-h-[2000px] opacity-100 mt-6' : 'max-h-0 opacity-0 mt-0'}`}>
+            
+            {/* 2024 Paper 1: Biopterin */}
+            <section id="biopterin" className="bg-[#0f172a] rounded-xl border border-blue-900/30 overflow-hidden hover:border-blue-500/50 transition-colors group">
+              <div className="flex flex-col md:flex-row">
+                <div className="p-6 md:w-2/3 flex flex-col space-y-3">
+                  <h3 className="text-xl font-semibold text-white group-hover:text-blue-200 transition-colors">
+                    A Comprehensive Computational Study on the Thermodynamics and Kinetics of Tetrahydrobiopterin Regeneration Process
+                  </h3>
+                  <p className="text-slate-400">
+                    <strong className="text-blue-300">S Samanta</strong>, P Mondal
+                  </p>
+                  <p className="text-sm font-mono text-slate-500">
+                    <span className="text-blue-400">ChemPhysChem</span> 25 (19), e202400401
+                  </p>
+                  <div className="pt-2 mt-auto">
+                    <Link 
+                      href="https://doi.org/10.1002/cphc.202400401" 
+                      target="_blank"
+                      className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-900/50 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-900/50 border border-blue-700/50 transition-all"
+                    >
+                      DOI ↗
+                    </Link>
+                  </div>
+                </div>
+                {/* TOC Image: Biopterin */}
+                <div className="bg-[#020617] md:w-1/3 p-4 flex flex-col items-center justify-center border-t md:border-t-0 md:border-l border-blue-900/30">
+                  <div className="relative w-full h-48 md:h-full min-h-[180px]">
+                    <Image 
+                      src="/toc_biop.jpg" 
+                      alt="TOC Graphic for Tetrahydrobiopterin paper" 
+                      fill 
+                      className="object-contain p-2"
+                    />
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* 2024 Paper 2: Fluorescein */}
+            <section id="fluorescein" className="bg-[#0f172a] rounded-xl border border-blue-900/30 overflow-hidden hover:border-blue-500/50 transition-colors group">
+              <div className="flex flex-col md:flex-row">
+                <div className="p-6 md:w-2/3 flex flex-col space-y-3">
+                  <h3 className="text-xl font-semibold text-white group-hover:text-blue-200 transition-colors">
+                    Unraveling the mystery of solvation-dependent fluorescence of fluorescein dianion using computational study
+                  </h3>
+                  <p className="text-slate-400">
+                    A Roy, <strong className="text-blue-300">S Samanta</strong>, S Ray, P Mondal
+                  </p>
+                  <p className="text-sm font-mono text-slate-500">
+                    <span className="text-blue-400">The Journal of Chemical Physics</span> 160 (3)
+                  </p>
+                  <div className="pt-2 mt-auto">
+                    <Link 
+                      href="https://doi.org/10.1063/5.0180218" 
+                      target="_blank"
+                      className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-900/50 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-900/50 border border-blue-700/50 transition-all"
+                    >
+                      DOI ↗
+                    </Link>
+                  </div>
+                </div>
+                {/* TOC Image: Fluorescein */}
+                <div className="bg-[#020617] md:w-1/3 p-4 flex flex-col items-center justify-center border-t md:border-t-0 md:border-l border-blue-900/30">
+                  <div className="relative w-full h-48 md:h-full min-h-[180px]">
+                    <Image 
+                      src="/toc_fluorescein.jpeg" 
+                      alt="TOC Graphic for Fluorescein paper" 
+                      fill 
+                      className="object-contain p-2"
+                    />
+                  </div>
+                </div>
+              </div>
+            </section>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}

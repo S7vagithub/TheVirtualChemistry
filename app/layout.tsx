@@ -1,0 +1,46 @@
+import type { Metadata } from "next";
+import "./globals.css";
+import Navigation from "@/components/Navigation";
+
+export const metadata: Metadata = {
+  title: "TheVirtualChemistry",
+  description: "Computational and Theoretical Chemistry by Suvadip",
+  icons: {
+    icon: '/TVC_logo2.png', 
+  },
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <body className="bg-[#020617] text-slate-100 antialiased">
+        
+        <div className="relative flex flex-col min-h-screen w-full max-w-[100vw] overflow-x-hidden">
+          
+          {/* Abstract Background Glow */}
+          <div className="absolute top-0 left-1/2 w-full max-w-[1000px] h-[500px] bg-blue-900/20 rounded-full blur-[120px] -translate-x-1/2 -z-10 pointer-events-none"></div>
+
+          {/* FIX 1: Wrapped Navigation in `relative z-50` so it is NEVER buried */}
+          <div className="relative z-50 w-full">
+            <Navigation />
+          </div>
+          
+          {/* Main Content Area */}
+          <main className="flex-grow max-w-7xl mx-auto w-full p-4 md:p-8 relative z-10">
+            {children}
+          </main>
+
+          {/* FIX 2: Added `relative z-50` to the Footer so it stays on top */}
+          <footer className="relative z-50 text-center text-sm text-slate-500 py-6 border-t border-blue-900/30 mt-auto w-full bg-[#020617]">
+            © {new Date().getFullYear()} Suvadip Samanta. Theoretical & Computational Chemistry.
+          </footer>
+          
+        </div>
+      </body>
+    </html>
+  );
+}
