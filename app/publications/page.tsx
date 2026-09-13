@@ -4,7 +4,11 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
-// We store the publications here so the search bar can filter them easily
+// 1. Statically import the TOC images
+import tocLisco from "../public/toc_lisco.png";
+import tocBiop from "../public/toc_biop.jpg";
+import tocFluor from "../public/toc_fluorescein.jpeg";
+
 const publicationsData = [
   {
     id: "spin-crossover",
@@ -13,8 +17,8 @@ const publicationsData = [
     authors: <><strong className="text-blue-300">S Samanta</strong>, S Ray, P Mondal</>,
     journal: "Advanced Theory and Simulations",
     citation: "9 (2), e01684",
-    link: "https://doi.org/10.1002/adts.202501684", // Your added DOI
-    image: "/toc_lisco.png",
+    link: "https://doi.org/10.1002/adts.202501684",
+    image: tocLisco, // 2. Use imported variable (no quotes!)
     searchString: "computational insights into light-induced spin crossover magnetic properties s samanta ray mondal advanced theory simulations",
   },
   {
@@ -24,8 +28,8 @@ const publicationsData = [
     authors: <><strong className="text-blue-300">S Samanta</strong>, P Mondal</>,
     journal: "ChemPhysChem",
     citation: "25 (19), e202400401",
-    link: "https://doi.org/10.1002/cphc.202400401", // Your added DOI
-    image: "/toc_biop.jpg",
+    link: "https://doi.org/10.1002/cphc.202400401",
+    image: tocBiop, // 2. Use imported variable
     searchString: "comprehensive computational study thermodynamics kinetics tetrahydrobiopterin regeneration s samanta mondal chemphyschem",
   },
   {
@@ -35,8 +39,8 @@ const publicationsData = [
     authors: <>A Roy, <strong className="text-blue-300">S Samanta</strong>, S Ray, P Mondal</>,
     journal: "The Journal of Chemical Physics",
     citation: "160 (3)",
-    link: "https://doi.org/10.1063/5.0180218", // Your added DOI
-    image: "/toc_fluorescein.jpeg",
+    link: "https://doi.org/10.1063/5.0180218",
+    image: tocFluor, // 2. Use imported variable
     searchString: "unraveling mystery solvation-dependent fluorescence fluorescein dianion a roy s samanta ray mondal journal chemical physics",
   }
 ];
@@ -52,31 +56,22 @@ export default function Publications() {
     setOpenYears((prev) => ({ ...prev, [year]: !prev[year] }));
   };
 
-  // Filter the publications based on what is typed in the search bar
   const filteredPubs = publicationsData.filter((pub) =>
     pub.searchString.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Group the filtered results back into their years
   const groupedPubs = filteredPubs.reduce((acc, pub) => {
     if (!acc[pub.year]) acc[pub.year] = [];
     acc[pub.year].push(pub);
     return acc;
   }, {} as Record<string, typeof publicationsData>);
 
-  // Sort years in descending order (newest first)
   const years = Object.keys(groupedPubs).sort((a, b) => Number(b) - Number(a));
 
   return (
     <div className="space-y-12 mt-8 fade-in max-w-5xl">
-      
-      {/* Page Header with Search Widget */}
       <div className="border-b border-blue-900/50 pb-6 flex flex-col md:flex-row md:justify-between md:items-end gap-4">
-        <h1 className="text-4xl font-bold tracking-tight text-white">
-          Publications
-        </h1>
-        
-        {/* The Search Bar (Replaced the subtitle) */}
+        <h1 className="text-4xl font-bold tracking-tight text-white">Publications</h1>
         <div className="relative w-full md:w-80">
           <input
             type="text"
@@ -91,18 +86,15 @@ export default function Publications() {
         </div>
       </div>
 
-      {/* Render the grouped publications */}
       <div className="space-y-10">
         {years.length === 0 ? (
           <p className="text-slate-400 text-center py-8">No publications found matching "{searchTerm}".</p>
         ) : (
           years.map((year) => {
-            // Force the accordion open if the user is actively searching
             const isYearOpen = searchTerm.length > 0 ? true : openYears[year];
 
             return (
               <div key={year}>
-                {/* Year Header / Toggle Button */}
                 <button 
                   onClick={() => toggleYear(year)}
                   className="w-full flex justify-between items-center py-4 border-b-2 border-blue-900/50 hover:border-blue-400 transition-colors group"
@@ -116,18 +108,13 @@ export default function Publications() {
                   </svg>
                 </button>
 
-                {/* Collapsible Content */}
                 <div className={`space-y-6 overflow-hidden transition-all duration-500 ease-in-out ${isYearOpen ? 'max-h-[3000px] opacity-100 mt-6' : 'max-h-0 opacity-0 mt-0'}`}>
                   {groupedPubs[year].map((pub) => (
                     <section key={pub.id} id={pub.id} className="bg-[#0f172a] rounded-xl border border-blue-900/30 overflow-hidden hover:border-blue-500/50 transition-colors group">
                       <div className="flex flex-col md:flex-row">
                         <div className="p-6 md:w-2/3 flex flex-col space-y-3">
-                          <h3 className="text-xl font-semibold text-white group-hover:text-blue-200 transition-colors">
-                            {pub.title}
-                          </h3>
-                          <p className="text-slate-400">
-                            {pub.authors}
-                          </p>
+                          <h3 className="text-xl font-semibold text-white group-hover:text-blue-200 transition-colors">{pub.title}</h3>
+                          <p className="text-slate-400">{pub.authors}</p>
                           <p className="text-sm font-mono text-slate-500">
                             <span className="text-blue-400">{pub.journal}</span> {pub.citation}
                           </p>
@@ -141,9 +128,9 @@ export default function Publications() {
                             </Link>
                           </div>
                         </div>
-                        {/* TOC Image */}
                         <div className="bg-[#020617] md:w-1/3 p-4 flex flex-col items-center justify-center border-t md:border-t-0 md:border-l border-blue-900/30">
                           <div className="relative w-full h-48 md:h-full min-h-[180px]">
+                            {/* 3. The Image component now accepts the imported variable! */}
                             <Image 
                               src={pub.image} 
                               alt={`TOC Graphic for ${pub.journal} paper`} 

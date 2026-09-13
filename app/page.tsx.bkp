@@ -2,25 +2,26 @@ import Image from "next/image";
 
 export default function Home() {
   return (
-    <div className="relative w-full min-h-[75vh] flex items-center py-12 md:py-16">
+    // Adjusted min-h to center the content perfectly between the navbar and footer
+    <div className="relative w-full flex items-center justify-center min-h-[70vh]">
       
-      {/* 1. THE BREAKOUT BACKGROUND: Forces the image to be full screen width, eliminating the desktop black spots */}
-      <div className="absolute top-0 left-[50%] w-[100vw] h-full -translate-x-1/2 -z-10 border-y border-blue-900/30 overflow-hidden">
+      {/* 1. THE FULL-SCREEN BACKGROUND: Fixed to the viewport to eliminate all gaps and strips */}
+      <div className="fixed inset-0 w-[100vw] h-[100vh] -z-20 pointer-events-none">
         <Image 
           src="/bg.png" 
           alt="Computational Chemistry Background" 
           fill 
-          className="object-cover opacity-60"
+          className="object-cover opacity-20"
           priority
         />
-        {/* Smooth fade on the left and right edges so it blends into the void naturally */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#020617] via-transparent to-[#020617]"></div>
+        {/* Smooth vertical fade so it blends flawlessly into the Navbar (top) and Footer (bottom) */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#020617] via-transparent to-[#020617]"></div>
       </div>
 
       {/* 2. Original Content Container */}
-      <div className="fade-in flex flex-col md:flex-row items-center md:items-start gap-8 md:gap-16 w-full">
+      <div className="fade-in flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 w-full max-w-5xl mt-4 md:mt-0">
         
-        {/* Logo Section - FIXED FOR MOBILE: Added max-w-[280px] so it shrinks on small phones! */}
+        {/* Logo Section */}
         <div className="shrink-0 z-10 w-full max-w-[280px] md:max-w-[360px] mx-auto md:mx-0">
           <Image 
             src="/TVC_home.png" 
@@ -33,7 +34,7 @@ export default function Home() {
         </div>
         
         {/* Text Section with Glassmorphism Effect */}
-        <div className="space-y-6 md:mt-8 bg-[#0f172a]/60 backdrop-blur-md p-6 md:p-8 rounded-2xl border border-blue-900/40 z-10 shadow-2xl w-full">
+        <div className="space-y-6 bg-[#0f172a]/60 backdrop-blur-md p-6 md:p-8 rounded-2xl border border-blue-900/40 z-10 shadow-2xl w-full">
           <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-white text-center md:text-left">
             Welcome to TheVirtualChemistry
           </h1>
