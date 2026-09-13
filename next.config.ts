@@ -1,17 +1,19 @@
-// We check if the environment is "production" (GitHub Actions) or "development" (local)
-const isProd = process.env.NODE_ENV === 'production';
+// This checks if the code is currently being built by GitHub's servers
+const isGithubActions = process.env.GITHUB_ACTIONS || false;
+const repoName = '/TheVirtualChemistry';
 
 const nextConfig = {
   output: 'export',
   
-  // Use the repository name ONLY when building on GitHub!
-  basePath: isProd ? '/TheVirtualChemistry' : '',
+  // Applies the sub-folder path ONLY when GitHub Actions is doing the build
+  basePath: isGithubActions ? repoName : '',
+  assetPrefix: isGithubActions ? repoName : '',
   
   images: {
     unoptimized: true,
   },
   
-  // Fixes the cross-origin block you got when testing on your local network
+  // Fixes the cross-origin block for your local network testing
   allowedDevOrigins: ['172.27.120.196', 'localhost'], 
 };
 
