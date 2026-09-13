@@ -2,11 +2,15 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
 
+
+const basePath = process.env.NODE_ENV === 'production' ? '/TheVirtualChemistry' : '';
+
+
 export const metadata: Metadata = {
   title: "TheVirtualChemistry",
   description: "Computational and Theoretical Chemistry by Suvadip",
   icons: {
-    icon: '/TVC_logo2.png', 
+    icon: `${basePath}/TVC_logo2.png`,
   },
 };
 
