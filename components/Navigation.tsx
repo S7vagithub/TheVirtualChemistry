@@ -2,6 +2,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { siteConfig } from '../config/siteConfig';
 
+// Automatically handles the repo sub-path on GitHub Pages while keeping local dev clean
+const basePath = process.env.NODE_ENV === 'production' ? '/TheVirtualChemistry' : '';
+
 export default function Navigation() {
   const navLinks = [
     { name: 'Home', href: '/', show: siteConfig.features.home },
@@ -21,7 +24,7 @@ export default function Navigation() {
         {/* Main Title with Logo */}
         <Link href="/" className="flex items-center gap-3 group">
           <Image 
-            src="/TVC_home_border.png" 
+            src={`${basePath}/VC_home_border.png`}
             alt="TVC Logo" 
             width={40} 
             height={40} 
