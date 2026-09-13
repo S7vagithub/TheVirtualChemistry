@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
-
+import ConstellationBackground from "@/components/ConstellationBackground";
 
 const basePath = process.env.NODE_ENV === 'production' ? '/TheVirtualChemistry' : '';
-
 
 export const metadata: Metadata = {
   title: "TheVirtualChemistry",
@@ -23,12 +22,15 @@ export default function RootLayout({
     <html lang="en">
       <body className="bg-[#020617] text-slate-100 antialiased">
         
+        {/* Interactive Constellation Background */}
+        <ConstellationBackground />
+
         <div className="relative flex flex-col min-h-screen w-full max-w-[100vw] overflow-x-hidden">
           
           {/* Abstract Background Glow */}
           <div className="absolute top-0 left-1/2 w-full max-w-[1000px] h-[500px] bg-blue-900/20 rounded-full blur-[120px] -translate-x-1/2 -z-10 pointer-events-none"></div>
 
-          {/* FIX 1: Wrapped Navigation in `relative z-50` so it is NEVER buried */}
+          {/* Navigation */}
           <div className="relative z-50 w-full">
             <Navigation />
           </div>
@@ -38,7 +40,7 @@ export default function RootLayout({
             {children}
           </main>
 
-          {/* FIX 2: Added `relative z-50` to the Footer so it stays on top */}
+          {/* Footer */}
           <footer className="relative z-50 text-center text-sm text-slate-500 py-6 border-t border-blue-900/30 mt-auto w-full bg-[#020617]">
             © {new Date().getFullYear()} Suvadip Samanta. Theoretical & Computational Chemistry.
           </footer>

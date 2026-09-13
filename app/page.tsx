@@ -14,7 +14,7 @@ export default function Home() {
           src={`${basePath}/bg.png`} 
           alt="Computational Chemistry Background" 
           fill 
-          className="object-cover opacity-60"
+          className="object-cover opacity-40"
           priority
         />
         {/* Smooth vertical fade so it blends flawlessly into the Navbar (top) and Footer (bottom) */}
