@@ -23,8 +23,8 @@ export default function Navigation() {
         
         {/* Main Title with Logo */}
         <Link href="/" className="flex items-center gap-3 group">
-          <Image 
-            src={`${basePath}/VC_home_border.png`}
+	<Image 
+            src={`${basePath}/TVC_home_border.png`}
             alt="TVC Logo" 
             width={40} 
             height={40} 
