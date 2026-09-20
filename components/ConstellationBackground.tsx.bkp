@@ -1,0 +1,156 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+import { useTheme } from "next-themes";
+
+export default function ConstellationBackground() {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  
+  // Get the current theme from next-themes
+  const { resolvedTheme } = useTheme();
+  const themeRef = useRef(resolvedTheme);
+
+  // Keep the ref constantly updated without triggering React re-renders
+  useEffect(() => {
+    themeRef.current = resolvedTheme;
+  }, [resolvedTheme]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let animationFrameId: number;
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
+
+    const handleResize = () => {
+      if (!canvas) return;
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    };
+    window.addEventListener("resize", handleResize);
+
+    const mouse = {
+      x: -1000,
+      y: -1000,
+      radius: 220,
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    };
+
+    const handleMouseLeave = () => {
+      mouse.x = -1000;
+      mouse.y = -1000;
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseleave", handleMouseLeave);
+
+    const particleCount = Math.floor((width * height) / 16000);
+    interface Particle {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      radius: number;
+    }
+
+    const particles: Particle[] = [];
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4,
+        radius: (Math.random() * 3 + 4) * 2.5, // Big, prominent nodes
+      });
+    }
+
+    const animate = () => {
+      // Check the theme dynamically on every single frame
+      const isLight = themeRef.current === "light";
+
+      // Dynamically set background: Tailwind's slate-50 for light, #020617 for dark
+      ctx.fillStyle = isLight ? "#f8fafc" : "#020617";
+      ctx.fillRect(0, 0, width, height);
+
+      for (let i = 0; i < particles.length; i++) {
+        let p = particles[i];
+
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if (p.x < 0 || p.x > width) p.vx *= -1;
+        if (p.y < 0 || p.y > height) p.vy *= -1;
+
+        const dx = mouse.x - p.x;
+        const dy = mouse.y - p.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < mouse.radius) {
+          const force = (mouse.radius - distance) / mouse.radius;
+          const angle = Math.atan2(dy, dx);
+          p.x -= Math.cos(angle) * force * 5;
+          p.y -= Math.sin(angle) * force * 5;
+        }
+
+        // Draw wide, prominent connecting bond lines
+        for (let j = i + 1; j < particles.length; j++) {
+          const p2 = particles[j];
+          const distBetweenParticles = Math.hypot(p.x - p2.x, p.y - p2.y);
+
+          if (distBetweenParticles < 380) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            const alpha = (1 - distBetweenParticles / 380) * 0.85; 
+            
+            // Deep blue (Tailwind blue-900) for light mode, Cyan for dark mode
+            ctx.strokeStyle = isLight 
+              ? `rgba(30, 58, 138, ${alpha})` 
+              : `rgba(125, 211, 252, ${alpha})`; 
+              
+            ctx.lineWidth = 6.0;
+            ctx.stroke();
+          }
+        }
+
+        // Draw glowing nodes
+        ctx.shadowBlur = 25;
+        // Subtle blue glow for light mode, massive white glow for dark mode
+        ctx.shadowColor = isLight ? "rgba(30, 58, 138, 0.5)" : "rgba(255, 255, 255, 1)";
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        // Deep blue nodes for light mode, pure white for dark mode
+        ctx.fillStyle = isLight ? "#1e3a8a" : "#ffffff"; 
+        ctx.fill();
+
+        ctx.shadowBlur = 0;
+      }
+
+      animationFrameId = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseleave", handleMouseLeave);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 pointer-events-none -z-50"
+    />
+  );
+}

@@ -1,9 +1,17 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useTheme } from "next-themes";
 
 export default function ConstellationBackground() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  
+  const { resolvedTheme } = useTheme();
+  const themeRef = useRef(resolvedTheme);
+
+  useEffect(() => {
+    themeRef.current = resolvedTheme;
+  }, [resolvedTheme]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -22,11 +30,7 @@ export default function ConstellationBackground() {
     };
     window.addEventListener("resize", handleResize);
 
-    const mouse = {
-      x: -1000,
-      y: -1000,
-      radius: 220,
-    };
+    const mouse = { x: -1000, y: -1000, radius: 220 };
 
     const handleMouseMove = (e: MouseEvent) => {
       mouse.x = e.clientX;
@@ -41,77 +45,122 @@ export default function ConstellationBackground() {
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseleave", handleMouseLeave);
 
-    const particleCount = Math.floor((width * height) / 16000);
-    interface Particle {
+    // Doubled the number of molecules (divided by 8000 instead of 16000)
+    const particleCount = Math.floor((width * height) / 12000);
+    
+    interface WaterMolecule {
       x: number;
       y: number;
       vx: number;
       vy: number;
-      radius: number;
+      radius: number; 
+      angle: number;  
+      spin: number;   
     }
 
-    const particles: Particle[] = [];
+    const molecules: WaterMolecule[] = [];
     for (let i = 0; i < particleCount; i++) {
-      particles.push({
+      molecules.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.4,
-        vy: (Math.random() - 0.5) * 0.4,
-        radius: (Math.random() * 3 + 4) * 2.5, // Big, prominent nodes
+        // Doubled speed again
+        vx: (Math.random() - 0.5) * 1.6,
+        vy: (Math.random() - 0.5) * 1.6,
+        // Increased atom size by 1.5x
+        radius: (Math.random() * 2 + 3) * 1.875, 
+        angle: Math.random() * Math.PI * 2,
+        spin: (Math.random() - 0.5) * 0.03, // Slightly faster tumbling to match speed
       });
     }
 
     const animate = () => {
-      // Solid rich theme background so nothing washes it out
-      ctx.fillStyle = "#020617";
+      const isLight = themeRef.current === "light";
+
+      // Background
+      ctx.fillStyle = isLight ? "#f8fafc" : "#020617";
       ctx.fillRect(0, 0, width, height);
 
-      for (let i = 0; i < particles.length; i++) {
-        let p = particles[i];
+      // Thermal "giggling" timer
+      const time = Date.now() * 0.035;
 
-        p.x += p.vx;
-        p.y += p.vy;
+      for (let i = 0; i < molecules.length; i++) {
+        let m = molecules[i];
 
-        if (p.x < 0 || p.x > width) p.vx *= -1;
-        if (p.y < 0 || p.y > height) p.vy *= -1;
+        m.x += m.vx;
+        m.y += m.vy;
+        m.angle += m.spin; 
 
-        const dx = mouse.x - p.x;
-        const dy = mouse.y - p.y;
+        // Bounce off walls
+        if (m.x < 0 || m.x > width) m.vx *= -1;
+        if (m.y < 0 || m.y > height) m.vy *= -1;
+
+        // Mouse interaction (repulsion)
+        const dx = mouse.x - m.x;
+        const dy = mouse.y - m.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
         if (distance < mouse.radius) {
           const force = (mouse.radius - distance) / mouse.radius;
           const angle = Math.atan2(dy, dx);
-          p.x -= Math.cos(angle) * force * 5;
-          p.y -= Math.sin(angle) * force * 5;
+          m.x -= Math.cos(angle) * force * 5;
+          m.y -= Math.sin(angle) * force * 5;
         }
 
-        // Draw wide, prominent connecting bond lines
-        for (let j = i + 1; j < particles.length; j++) {
-          const p2 = particles[j];
-          const distBetweenParticles = Math.hypot(p.x - p2.x, p.y - p2.y);
+        // NOTE: Intermolecular connecting lines have been completely removed here.
 
-          if (distBetweenParticles < 380) {
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p2.x, p2.y);
-            const alpha = (1 - distBetweenParticles / 380) * 0.85; // High visibility
-            ctx.strokeStyle = `rgba(125, 211, 252, ${alpha})`; // Bright cyan-blue tint matching text highlights
-            ctx.lineWidth = 6.0; // Very wide bonds
-            ctx.stroke();
-          }
-        }
+        // 1. Calculate Water Molecule Geometry with increased bond distance
+        const thermalJitter = Math.sin(time + i * 100) * 0.15;
+        const currentAngle = m.angle + thermalJitter;
 
-        // Draw ultra-bright, intense white glowing nodes to match text brightness
-        ctx.shadowBlur = 25; // Massive glow intensity
-        ctx.shadowColor = "rgba(255, 255, 255, 1)";
+        const rO = m.radius; 
+        const rH = rO * 0.6; 
+        
+        // Increased distance between Oxygen and Hydrogen (was 1.6, now 2.2)
+        const bondLength = rO * 2.2;
 
+        const h1Angle = currentAngle - 0.911;
+        const h2Angle = currentAngle + 0.911;
+
+        const h1x = m.x + Math.cos(h1Angle) * bondLength;
+        const h1y = m.y + Math.sin(h1Angle) * bondLength;
+
+        const h2x = m.x + Math.cos(h2Angle) * bondLength;
+        const h2y = m.y + Math.sin(h2Angle) * bondLength;
+
+        // 2. Draw Intramolecular O-H Bonds (the sticks connecting the atoms)
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = "#ffffff"; // Exact pure white matching the H1 text
-        ctx.fill();
+        ctx.moveTo(h1x, h1y);
+        ctx.lineTo(m.x, m.y);
+        ctx.lineTo(h2x, h2y);
+        ctx.strokeStyle = isLight ? "#94a3b8" : "#cbd5e1"; 
+        ctx.lineWidth = 2.5; // Slightly thicker to match the larger atoms
+        ctx.stroke();
 
-        ctx.shadowBlur = 0;
+        // 3. Draw Atoms (Red Oxygen, White Hydrogens)
+        
+        // Draw H1
+        ctx.beginPath();
+        ctx.arc(h1x, h1y, rH, 0, Math.PI * 2);
+        ctx.fillStyle = isLight ? "#ffffff" : "#e2e8f0";
+        ctx.fill();
+        ctx.strokeStyle = isLight ? "#cbd5e1" : "#475569"; 
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // Draw H2
+        ctx.beginPath();
+        ctx.arc(h2x, h2y, rH, 0, Math.PI * 2);
+        ctx.fillStyle = isLight ? "#ffffff" : "#e2e8f0";
+        ctx.fill();
+        ctx.stroke();
+
+        // Draw Oxygen (Red)
+        ctx.beginPath();
+        ctx.arc(m.x, m.y, rO, 0, Math.PI * 2);
+        ctx.fillStyle = "#ef4444"; 
+        ctx.fill();
+        ctx.strokeStyle = isLight ? "#b91c1c" : "#7f1d1d";
+        ctx.stroke();
       }
 
       animationFrameId = requestAnimationFrame(animate);

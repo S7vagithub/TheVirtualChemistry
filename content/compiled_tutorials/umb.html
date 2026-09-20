@@ -1,0 +1,74 @@
+<div class="tocbox">
+
+</div>
+<h1 class="unnumbered" id="about-the-tutorial">About the tutorial</h1>
+<p>Standard molecular dynamics simulations often fail to capture rare events like cis–trans isomerization because the energy barrier is too high to cross at standard temperatures. The molecule will simply vibrate in its local energy minimum for microseconds.</p>
+<p>To overcome this, <strong>Umbrella Sampling (US)</strong> applies an artificial biasing potential along a reaction coordinate (a dihedral angle, in this case) to force the simulation to sample high-energy transition states. By running multiple independent simulations across the entire dihedral space, we can mathematically remove the bias later using the <strong>Weighted Histogram Analysis Method (WHAM)</strong> to reveal the true Free Energy Surface (FES).</p>
+<h1 id="simulation-workflow">Simulation Workflow</h1>
+<p>The workflow requires us to physically force the transition to generate structures, and then run isolated production simulations for every step along that pathway.</p>
+<figure data-latex-placement="H">
+
+</figure>
+<h1 id="steered-md-generating-the-pathway">Steered MD: Generating the Pathway</h1>
+<p>We begin with an equilibrated <code>npt.gro</code> structure. To set up our umbrella windows, we need structures spanning the entire reaction coordinate (<span class="math inline">-180^\circ</span> to <span class="math inline">+180^\circ</span>). We achieve this by "pulling" the dihedral angle using a moving harmonic restraint.</p>
+<h2 id="plumed-steering-input">PLUMED Steering Input</h2>
+<p>Create a file named <code>plumed_steer.dat</code>.</p>
+<pre title="\textbf{plumed\_steer.dat}"><code># Define the dihedral angle
+phi: TORSION ATOMS=6,12,13,18
+
+# Apply a moving restraint from -pi to +pi
+restraint: MOVINGRESTRAINT ARG=phi STEP0=0 AT0=-3.14 KAPPA0=1000 STEP1=500000 AT1=3.14 KAPPA1=1000
+
+# Print the progress
+PRINT STRIDE=100 ARG=phi,restraint.bias FILE=COLVAR</code></pre>
+<div class="syntaxbox">
+<p>Let’s break down the PLUMED parameters:</p>
+<ul>
+<li><p><code>phi: TORSION ATOMS=6,12,13,18</code> : Defines the coordinate using the atom indices that make up the rotatable bond.</p></li>
+<li><p><code>MOVINGRESTRAINT</code> : Applies a time-dependent harmonic potential that changes its target over the course of the simulation.</p></li>
+<li><p><code>STEP0 / STEP1</code> : The start and end integration steps of the pulling process.</p></li>
+<li><p><code>AT0 / AT1</code> : The initial and final target angles.</p></li>
+<li><p><code>KAPPA0 / KAPPA1</code> : The force constant (<span class="math inline">kJ/mol/rad^2</span>) of the spring.</p></li>
+</ul>
+</div>
+<div class="gotcha">
+<p><strong>Radians vs. Degrees:</strong> PLUMED uses radians by default. A common mistake is setting the <code>AT</code> target to <code>180</code> instead of <code>3.14</code> (<span class="math inline">\pi</span>). PLUMED will attempt to pull your dihedral to 180 radians, which will instantly crash your simulation with a domain error.</p>
+</div>
+<h2 id="executing-the-pull">Executing the Pull</h2>
+<p>First, compile the binary input file, then pass the PLUMED file directly to <code>mdrun</code>.</p>
+<pre title="\textbf{Bash Execution}"><code>gmx_mpi grompp -f steer.mdp -c npt.gro -p topol.top -n index.ndx -o steer.tpr 
+
+mpirun -np 8 gmx_mpi mdrun -deffnm steer -plumed plumed_steer.dat</code></pre>
+<div class="syntaxbox">
+<ul>
+<li><p><code>-deffnm steer</code> : Sets "steer" as the default prefix for all output files (e.g., <code>steer.xtc</code>, <code>steer.log</code>).</p></li>
+<li><p><code>-plumed plumed_steer.dat</code> : Instructs GROMACS to link with the PLUMED plugin and apply the biases defined in the file.</p></li>
+</ul>
+</div>
+<h1 id="umbrella-sampling-production">Umbrella Sampling Production</h1>
+<p>Assuming you have extracted the frames using a Python script (e.g., <code>extract_windows.py</code>), you must now set up a separate directory for every window.</p>
+<p>Unlike the moving restraint, Umbrella Sampling uses a <strong>static</strong> harmonic restraint centered exactly on that window’s dihedral angle.</p>
+<pre title="\textbf{plumed.dat (Inside window\_05/ )}"><code>phi: TORSION ATOMS=6,12,13,18
+restraint: RESTRAINT ARG=phi AT=0.52 RAD KAPPA=2000
+PRINT STRIDE=100 ARG=phi,restraint.bias FILE=COLVAR</code></pre>
+<div class="syntaxbox">
+<ul>
+<li><p><code>RESTRAINT</code> : Applies a static, unchanging harmonic bias.</p></li>
+<li><p><code>AT=0.52</code> : The specific target center for this window. <strong>This value must be updated for every single window folder.</strong></p></li>
+</ul>
+</div>
+<div class="protip">
+<p>The structures extracted from the pulling simulation are highly strained. It is strongly recommended to run a short (100 ps) NPT equilibration in each window with the static PLUMED restraint active <em>before</em> starting your production run. This allows the solvent to relax around the artificially held solute.</p>
+</div>
+<h1 id="wham-analysis">WHAM Analysis</h1>
+<p>Before generating the Free Energy Surface, check your <code>COLVAR</code> files to ensure the dihedral histograms for adjacent windows overlap. If they do not, your FES will have mathematical artifacts.</p>
+<p>Once overlap is confirmed, concatenate the trajectories and use the PLUMED driver to evaluate the bias potentials.</p>
+<pre title="\textbf{Bash Execution}"><code>gmx_mpi trjcat -cat -f umbrella_*/umbrella.xtc -o concatenated.xtc
+
+plumed driver --mf_xtc concatenated.xtc --plumed plumed-wham.dat</code></pre>
+<div class="syntaxbox">
+<ul>
+<li><p><code>-cat</code> : Forces concatenation even if the times overlap.</p></li>
+<li><p><code>--mf_xtc</code> : Tells the PLUMED driver to evaluate a multi-frame trajectory.</p></li>
+</ul>
+</div>
